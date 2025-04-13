@@ -1,9 +1,19 @@
+# s3 bucket
 module "s3" {
   source       = "./terraform-iac/s3"
   project_name = var.project_name
   uuid         = var.uuid
 }
 
+# API Gateway
+module "api_gateway" {
+  source = "./terraform-iac/api-gateway"
+
+  get_download_model_weights_lambda_arn = module.get_download_model_weights_URL.lambda_invoke_arn
+  get_download_model_weights_lambda_name = module.get_download_model_weights_URL.lambda_function_name
+}
+
+# Lambda functions
 module "get_download_model_weights_URL" {
   source = "./terraform-iac/lambda/get_download_model_weights_URL"
 
