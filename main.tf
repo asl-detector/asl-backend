@@ -9,8 +9,14 @@ module "s3" {
 module "api_gateway" {
   source = "./terraform-iac/api-gateway"
 
-  get_download_model_weights_lambda_arn = module.get_download_model_weights_URL.lambda_invoke_arn
+  get_download_model_weights_lambda_arn  = module.get_download_model_weights_URL.lambda_invoke_arn
   get_download_model_weights_lambda_name = module.get_download_model_weights_URL.lambda_function_name
+
+  get_upload_model_monitoring_data_lambda_arn  = module.get_upload_model_monitoring_data_URL.lambda_invoke_arn
+  get_upload_model_monitoring_data_lambda_name = module.get_upload_model_monitoring_data_URL.lambda_function_name
+
+  get_upload_videos_lambda_arn  = module.get_upload_videos_URL.lambda_invoke_arn
+  get_upload_videos_lambda_name = module.get_upload_videos_URL.lambda_function_name
 }
 
 # Lambda functions
