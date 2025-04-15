@@ -1,3 +1,4 @@
+import json
 import os
 import boto3
 
@@ -5,15 +6,24 @@ dynamodb = boto3.client("dynamodb")
 table_name = os.environ["STATS_TABLE"]
 
 def handler(event, context):
-    user_id = event.get("user_id")
+    try:
+        # API Gateway proxy integration sends the body as a JSON string
+        body = json.loads(event.get("body", "{}"))
+    except json.JSONDecodeError:
+        return {
+            "statusCode": 400,
+            "body": "Invalid JSON body."
+        }
+
+    user_id = body.get("user_id")
     if not user_id:
         return {
             "statusCode": 400,
             "body": "Missing 'user_id' in request."
         }
 
-    minutes = event.get("minutes_uploaded", 0)
-    words = event.get("words_translated", 0)
+    minutes = body.get("minutes_uploaded", 0)
+    words = body.get("words_translated", 0)
 
     try:
         dynamodb.update_item(
