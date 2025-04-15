@@ -19,6 +19,11 @@ module "api_gateway" {
   get_upload_videos_lambda_name = module.get_upload_videos_URL.lambda_function_name
 }
 
+# DynamoDB
+module "dynamodb" {
+  source = "./terraform-iac/dynamodb"
+}
+
 # Lambda functions
 module "get_download_model_weights_URL" {
   source = "./terraform-iac/lambda/get_download_model_weights_URL"
@@ -39,5 +44,7 @@ module "get_upload_videos_URL" {
 }
 
 module "update_stats" {
-  source = "./terraform-iac/lambda/update_stats"
+  source              = "./terraform-iac/lambda/update_stats"
+  stats_table_name    = module.dynamodb.app_stats_table_name
+  dynamodb_policy_arn = module.dynamodb.dynamodb_update_stats_policy_arn
 }
