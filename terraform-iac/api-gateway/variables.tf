@@ -37,3 +37,13 @@ variable "update_stats_lambda_name" {
   description = "Function name of the update_stats Lambda"
   type        = string
 }
+
+variable "get_stats_lambda_arn" {
+  description = "The invoke ARN for the get_stats Lambda function"
+  type        = string
+}
+
+variable "get_stats_lambda_name" {
+  description = "The function name for the get_stats Lambda function"
+  type        = string
+}

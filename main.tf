@@ -20,6 +20,9 @@ module "api_gateway" {
 
   update_stats_lambda_arn  = module.update_stats.lambda_invoke_arn
   update_stats_lambda_name = module.update_stats.lambda_function_name
+
+  get_stats_lambda_arn  = module.get_stats.lambda_invoke_arn
+  get_stats_lambda_name = module.get_stats.lambda_function_name
 }
 
 # DynamoDB
@@ -50,4 +53,9 @@ module "update_stats" {
   source              = "./terraform-iac/lambda/update_stats"
   stats_table_name    = module.dynamodb.app_stats_table_name
   dynamodb_policy_arn = module.dynamodb.dynamodb_update_stats_policy_arn
+}
+
+module "get_stats" {
+  source           = "./terraform-iac/lambda/get_stats"
+  stats_table_name = module.dynamodb.app_stats_table_name
 }
