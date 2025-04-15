@@ -17,6 +17,9 @@ module "api_gateway" {
 
   get_upload_videos_lambda_arn  = module.get_upload_videos_URL.lambda_invoke_arn
   get_upload_videos_lambda_name = module.get_upload_videos_URL.lambda_function_name
+
+  update_stats_lambda_arn  = module.update_stats.lambda_invoke_arn
+  update_stats_lambda_name = module.update_stats.lambda_function_name
 }
 
 # DynamoDB

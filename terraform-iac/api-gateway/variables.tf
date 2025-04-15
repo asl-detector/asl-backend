@@ -27,3 +27,13 @@ variable "get_upload_videos_lambda_name" {
   type        = string
   description = "Function name for get_upload_videos"
 }
+
+variable "update_stats_lambda_arn" {
+  description = "Invoke ARN of the update_stats Lambda"
+  type        = string
+}
+
+variable "update_stats_lambda_name" {
+  description = "Function name of the update_stats Lambda"
+  type        = string
+}
