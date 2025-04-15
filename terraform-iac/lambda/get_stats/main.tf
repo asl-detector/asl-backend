@@ -16,6 +16,20 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy" "get_stats_dynamodb_policy" {
+  name = "get_stats_dynamodb_policy"
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version: "2012-10-17",
+    Statement: [{
+      Effect: "Allow",
+      Action: "dynamodb:GetItem",
+      Resource: "arn:aws:dynamodb:us-west-2:402730809955:table/${var.stats_table_name}"
+    }]
+  })
+}
+
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_file = "${path.module}/../../../lambdas/get_stats.py" # Adjust relative path as needed.
