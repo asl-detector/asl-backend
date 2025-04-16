@@ -6,8 +6,14 @@ dynamodb = boto3.client('dynamodb')
 table_name = os.environ.get("STATS_TABLE")
 
 def handler(event, context):
-    # Get the user id from the event payload; default to "global" if not provided
-    user_id = event.get("user_id", "global")
+    # Attempt to get user_id from the query parameters first.
+    user_id = None
+    if event.get("queryStringParameters"):
+        user_id = event["queryStringParameters"].get("user_id")
+
+    # Fall back to top-level field if necessary.
+    if not user_id:
+        user_id = event.get("user_id", "global")
 
     try:
         response = dynamodb.get_item(
@@ -23,11 +29,10 @@ def handler(event, context):
                 "body": json.dumps({"error": f"Stats not found for user: {user_id}"})
             }
 
-        # Convert DynamoDB attributes to a normal Python dict.
+        # Convert the DynamoDB item to a standard Python dictionary.
         stats = {}
         for key, value in item.items():
             if "N" in value:
-                # Convert number strings to integers
                 stats[key] = int(value["N"])
             elif "S" in value:
                 stats[key] = value["S"]
