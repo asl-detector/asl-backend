@@ -21,11 +21,11 @@ resource "aws_iam_role_policy" "get_stats_dynamodb_policy" {
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
-    Version: "2012-10-17",
-    Statement: [{
-      Effect: "Allow",
-      Action: "dynamodb:GetItem",
-      Resource: "arn:aws:dynamodb:us-west-2:402730809955:table/${var.stats_table_name}"
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["dynamodb:GetItem"]
+      Resource = var.stats_table_arn
     }]
   })
 }
