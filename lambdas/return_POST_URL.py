@@ -1,35 +1,47 @@
-import json
-import boto3
 import os
+import json
 import uuid
 
-s3 = boto3.client("s3")
-bucket = os.environ["BUCKET_NAME"]
+import boto3
+from botocore.client import Config
+
+# force SigV4 so we get POST creds that work in us‑west‑2
+s3 = boto3.client(
+    "s3",
+    config=Config(signature_version="s3v4"),
+    region_name=os.environ.get("AWS_REGION", "us-west-2")
+)
+
+BUCKET = os.environ["BUCKET_NAME"]
 
 def handler(event, context):
-    object_key = f"uploads/{uuid.uuid4()}.mp4"  # Or use event["filename"] if passed
+    # preserve extension if caller passed one
+    name = event.get("filename", "")
+    ext  = os.path.splitext(name)[1] or ".mp4"
+    key  = f"uploads/{uuid.uuid4()}{ext}"
 
     try:
         post = s3.generate_presigned_post(
-            Bucket=bucket,
-            Key=object_key,
-            ExpiresIn=300,  # 5 minutes
-            Conditions=[
-                ["content-length-range", 0, 100_000_000]  # Max ~100MB
-            ]
+            Bucket     = BUCKET,
+            Key        = key,
+            # optional extra security:
+            # Fields     = {"acl": "private"},
+            Conditions = [
+                ["starts-with", "$key", "uploads/"],
+                # ["eq", "$acl", "private"],        # if you set Fields above
+            ],
+            ExpiresIn  = 300
         )
 
         return {
             "statusCode": 200,
-            "body": json.dumps({
-                "url": post["url"],
-                "fields": post["fields"],
-                "object_key": object_key
-            }),
-            "headers": {"Content-Type": "application/json"}
+            "headers":    {"Content-Type": "application/json"},
+            "body":       json.dumps(post),
         }
+
     except Exception as e:
         return {
             "statusCode": 500,
-            "body": json.dumps({"error": str(e)})
+            "headers":    {"Content-Type": "application/json"},
+            "body":       json.dumps({"error": str(e)}),
         }

@@ -40,3 +40,22 @@ resource "aws_lambda_function" "lambda" {
     }
   }
 }
+
+resource "aws_iam_role_policy" "lambda_s3_upload" {
+  name = "lambda-s3-upload"    # <-- plain hyphens
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:PutObjectAcl"
+        ]
+        Resource = "arn:aws:s3:::${var.dataset_bucket_name}/uploads/*"
+      }
+    ]
+  })
+}

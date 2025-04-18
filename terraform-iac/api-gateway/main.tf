@@ -160,14 +160,30 @@ resource "aws_lambda_permission" "get_stats_permission" {
 
 # Deployment
 resource "aws_api_gateway_deployment" "api_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+
+  # this will force a brand‑new deployment any time one of those methods changes
+  triggers = {
+    redeploy = sha1(jsonencode([
+      aws_api_gateway_method.get_download_model_weights.id,
+      aws_api_gateway_method.get_upload_model_monitoring_data.id,
+      aws_api_gateway_method.get_upload_videos.id,
+      aws_api_gateway_method.update_stats.id,
+      aws_api_gateway_method.get_stats.id,
+    ]))
+  }
+
   depends_on = [
     aws_api_gateway_integration.get_download_model_weights,
     aws_api_gateway_integration.get_upload_model_monitoring_data,
     aws_api_gateway_integration.get_upload_videos,
     aws_api_gateway_integration.update_stats,
-    aws_api_gateway_integration.get_stats
+    aws_api_gateway_integration.get_stats,
   ]
-  rest_api_id = aws_api_gateway_rest_api.api.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_api_gateway_stage" "prod" {
