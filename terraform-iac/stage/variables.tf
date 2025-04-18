@@ -10,8 +10,8 @@ variable "uuid" {
   default     = "asl-dataset-stage-00"
 }
 
-variable "stage_name" {
-  description = "API Gateway stage (dev, stage, prod …)"
+variable "environment" {
+  description = "API Gateway stage/environment (dev, stage, prod …)"
   type        = string
-  default     = "stage"
+  default     = "STG"
 }

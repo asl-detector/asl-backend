@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "get_upload_model_monitoring_data_url_lambda_role"
+  name = "get_upload_model_monitoring_data_url_lambda_role-${var.environment}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -23,7 +23,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  function_name = "get_upload_model_monitoring_data_URL_lambda"
+  function_name = "get_upload_model_monitoring_data_URL_lambda-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "return_POST_URL.handler"  # file.function
   runtime       = "python3.11"

@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "get_model_weights_url_lambda_role"
+  name = "get_model_weights_url_lambda_role-${var.environment}" # Add environment suffix
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -23,7 +23,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  function_name = "get_download_model_weights_URL_lambda"
+  function_name = "get_download_model_weights_URL_lambda-${var.environment}" # Add environment suffix
   role          = aws_iam_role.lambda_role.arn
   handler       = "return_GET_URL.handler"  # file.function
   runtime       = "python3.11"

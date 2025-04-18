@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "get_upload_videos_url_lambda_role"
+  name = "get_upload_videos_url_lambda_role-${var.environment}" # Add environment suffix
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -23,7 +23,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  function_name = "get_upload_videos_URL_lambda"
+  function_name = "get_upload_videos_URL_lambda-${var.environment}" # Add environment suffix
   role          = aws_iam_role.lambda_role.arn
   handler       = "return_POST_URL.handler"
   runtime       = "python3.11"
@@ -42,7 +42,7 @@ resource "aws_lambda_function" "lambda" {
 }
 
 resource "aws_iam_role_policy" "lambda_s3_upload" {
-  name = "lambda-s3-upload"    # <-- plain hyphens
+  name = "lambda-s3-upload-${var.environment}" # Add environment suffix
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({

@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "app_stats" {
-  name           = "asl-app-stats"
+  name           = "asl-app-stats-${var.environment}"
   billing_mode   = "PAY_PER_REQUEST"
   hash_key       = "user_id"
 
@@ -9,13 +9,13 @@ resource "aws_dynamodb_table" "app_stats" {
   }
 
   tags = {
-    Environment = "prod"
+    Environment = "${var.environment}"
     App         = "asl-database"
   }
 }
 
 resource "aws_iam_policy" "dynamodb_update_stats_policy" {
-  name = "DynamoDBUpdateStats"
+  name = "DynamoDBUpdateStats-${var.environment}"
 
   policy = jsonencode({
     Version   = "2012-10-17",

@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "update_stats_lambda_role"
+  name = "update_stats_lambda_role-${var.environment}"
 
   assume_role_policy = jsonencode({
     Version   = "2012-10-17",
@@ -28,7 +28,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "update_stats" {
-  function_name = "update_stats_lambda"
+  function_name = "update_stats_lambda-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "update_stats.handler"
   runtime       = "python3.11"

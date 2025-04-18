@@ -7,3 +7,8 @@ variable "stats_table_arn" {
   description = "ARN of the DynamoDB stats table"
   type        = string
 }
+
+variable "environment" {
+  description = "The deployment environment (e.g., prod, stage)."
+  type        = string
+}

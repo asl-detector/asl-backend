@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "get_stats_lambda_role"
+  name = "get_stats_lambda_role-${var.environment}" # Add environment suffix
 
   assume_role_policy = jsonencode({
     Version   = "2012-10-17",
@@ -17,7 +17,7 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 }
 
 resource "aws_iam_role_policy" "get_stats_dynamodb_policy" {
-  name = "get_stats_dynamodb_policy"
+  name = "get_stats_dynamodb_policy-${var.environment}" # Add environment suffix
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
@@ -37,7 +37,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  function_name = "get_stats_lambda"
+  function_name = "get_stats_lambda-${var.environment}" # Add environment suffix
   role          = aws_iam_role.lambda_role.arn
   handler       = "get_stats.handler"
   runtime       = "python3.11"

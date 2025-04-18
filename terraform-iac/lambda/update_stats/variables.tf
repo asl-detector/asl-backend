@@ -7,3 +7,8 @@ variable "dynamodb_policy_arn" {
   type        = string
   description = "ARN of the IAM policy that permits DynamoDB UpdateItem"
 }
+
+variable "environment" {
+  description = "The deployment environment (e.g., prod, stage)."
+  type        = string
+}

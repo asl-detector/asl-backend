@@ -53,7 +53,7 @@ variable "project_name" {
   type        = string
 }
 
-variable "stage_name" {
-  description = "API Gateway stage (dev, stage, prod …)"
+variable "environment" {
+  description = "API Gateway stage/environment (dev, stage, prod …)"
   type        = string
 }

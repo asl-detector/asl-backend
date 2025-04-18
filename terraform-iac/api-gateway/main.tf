@@ -1,5 +1,5 @@
 resource "aws_api_gateway_rest_api" "api" {
-  name        = "asl-api"
+  name        = "asl-api-${var.environment}"
   description = "API for ASL Lambda functions"
 }
 
@@ -27,7 +27,7 @@ resource "aws_api_gateway_integration" "get_download_model_weights" {
 }
 
 resource "aws_lambda_permission" "apigw_get_download_model_weights" {
-  statement_id  = "AllowAPIGatewayInvoke"
+  statement_id  = "AllowAPIGatewayInvoke-${var.environment}"
   action        = "lambda:InvokeFunction"
   function_name = var.get_download_model_weights_lambda_name
   principal     = "apigateway.amazonaws.com"
@@ -58,7 +58,7 @@ resource "aws_api_gateway_integration" "get_upload_model_monitoring_data" {
 }
 
 resource "aws_lambda_permission" "allow_apigw_get_upload_model_monitoring_data" {
-  statement_id  = "AllowAPIGatewayInvokeMonitoringUpload"
+  statement_id  = "AllowAPIGatewayInvokeMonitoringUpload-${var.environment}"
   action        = "lambda:InvokeFunction"
   function_name = var.get_upload_model_monitoring_data_lambda_name
   principal     = "apigateway.amazonaws.com"
@@ -89,7 +89,7 @@ resource "aws_api_gateway_integration" "get_upload_videos" {
 }
 
 resource "aws_lambda_permission" "allow_apigw_get_upload_videos" {
-  statement_id  = "AllowAPIGatewayInvokeVideoUpload"
+  statement_id  = "AllowAPIGatewayInvokeVideoUpload-${var.environment}"
   action        = "lambda:InvokeFunction"
   function_name = var.get_upload_videos_lambda_name
   principal     = "apigateway.amazonaws.com"
@@ -120,7 +120,7 @@ resource "aws_api_gateway_integration" "update_stats" {
 }
 
 resource "aws_lambda_permission" "update_stats_permission" {
-  statement_id  = "AllowAPIGatewayInvokeUpdateStats"
+  statement_id  = "AllowAPIGatewayInvokeUpdateStats-${var.environment}"
   action        = "lambda:InvokeFunction"
   function_name = var.update_stats_lambda_name
   principal     = "apigateway.amazonaws.com"
@@ -151,7 +151,7 @@ resource "aws_api_gateway_integration" "get_stats" {
 }
 
 resource "aws_lambda_permission" "get_stats_permission" {
-  statement_id  = "AllowAPIGatewayInvokeGetStats"
+  statement_id  = "AllowAPIGatewayInvokeGetStats-${var.environment}"
   action        = "lambda:InvokeFunction"
   function_name = var.get_stats_lambda_name
   principal     = "apigateway.amazonaws.com"
@@ -187,7 +187,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
 }
 
 resource "aws_api_gateway_stage" "prod" {
-  stage_name    = var.stage_name
+  stage_name    = var.environment
   rest_api_id   = aws_api_gateway_rest_api.api.id
   deployment_id = aws_api_gateway_deployment.api_deployment.id
 }
@@ -199,18 +199,18 @@ resource "random_password" "desktop_key_value" {
 }
 
 resource "aws_api_gateway_api_key" "desktop" {
-  name        = "${var.project_name}-desktop-key"
+  name        = "${var.project_name}-desktop-key-${var.environment}"
   description = "Key used by the ASL desktop uploader"
   value       = random_password.desktop_key_value.result
   enabled     = true
 }
 
 resource "aws_api_gateway_usage_plan" "desktop_plan" {
-  name = "${var.project_name}-plan"
+  name = "${var.project_name}-plan-${var.environment}"
 
   api_stages {
     api_id = aws_api_gateway_rest_api.api.id
-    stage  = aws_api_gateway_stage.prod.stage_name   # or var.stage_name
+    stage  = aws_api_gateway_stage.prod.stage_name
   }
 
   throttle_settings {
