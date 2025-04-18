@@ -14,6 +14,7 @@ resource "aws_api_gateway_method" "get_download_model_weights" {
   resource_id   = aws_api_gateway_resource.get_download_model_weights_URL.id
   http_method   = "POST"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "get_download_model_weights" {
@@ -44,6 +45,7 @@ resource "aws_api_gateway_method" "get_upload_model_monitoring_data" {
   resource_id   = aws_api_gateway_resource.get_upload_model_monitoring_data_URL.id
   http_method   = "POST"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "get_upload_model_monitoring_data" {
@@ -74,6 +76,7 @@ resource "aws_api_gateway_method" "get_upload_videos" {
   resource_id   = aws_api_gateway_resource.get_upload_videos_URL.id
   http_method   = "POST"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "get_upload_videos" {
@@ -104,6 +107,7 @@ resource "aws_api_gateway_method" "update_stats" {
   resource_id   = aws_api_gateway_resource.update_stats.id
   http_method   = "POST"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "update_stats" {
@@ -134,6 +138,7 @@ resource "aws_api_gateway_method" "get_stats" {
   resource_id   = aws_api_gateway_resource.get_stats_resource.id
   http_method   = "GET"
   authorization = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "get_stats" {

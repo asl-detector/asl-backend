@@ -13,5 +13,5 @@ variable "uuid" {
 variable "stage_name" {
   description = "API Gateway stage (dev, stage, prod …)"
   type        = string
-  default     = "stage"
+  default     = "prod"
 }
