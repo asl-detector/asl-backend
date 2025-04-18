@@ -9,3 +9,9 @@ variable "uuid" {
   type        = string
   default     = "asl-dataset-stage-00"
 }
+
+variable "stage_name" {
+  description = "API Gateway stage (dev, stage, prod …)"
+  type        = string
+  default     = "stage"
+}

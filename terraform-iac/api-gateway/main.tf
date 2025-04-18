@@ -166,7 +166,45 @@ resource "aws_api_gateway_deployment" "api_deployment" {
 }
 
 resource "aws_api_gateway_stage" "prod" {
-  stage_name    = "prod"
+  stage_name    = var.stage_name
   rest_api_id   = aws_api_gateway_rest_api.api.id
   deployment_id = aws_api_gateway_deployment.api_deployment.id
+}
+
+# API Key
+resource "random_password" "desktop_key_value" {
+  length  = 32
+  special = false
+}
+
+resource "aws_api_gateway_api_key" "desktop" {
+  name        = "${var.project_name}-desktop-key"
+  description = "Key used by the ASL desktop uploader"
+  value       = random_password.desktop_key_value.result
+  enabled     = true
+}
+
+resource "aws_api_gateway_usage_plan" "desktop_plan" {
+  name = "${var.project_name}-plan"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.api.id
+    stage  = aws_api_gateway_stage.prod.stage_name   # or var.stage_name
+  }
+
+  throttle_settings {
+    rate_limit  = 10
+    burst_limit = 5
+  }
+
+  quota_settings {
+    limit  = 5000
+    period = "MONTH"
+  }
+}
+
+resource "aws_api_gateway_usage_plan_key" "desktop_attach" {
+  key_id        = aws_api_gateway_api_key.desktop.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.desktop_plan.id
 }

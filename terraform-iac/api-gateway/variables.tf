@@ -47,3 +47,13 @@ variable "get_stats_lambda_name" {
   description = "The function name for the get_stats Lambda function"
   type        = string
 }
+
+variable "project_name" {
+  description = "The name of the project"
+  type        = string
+}
+
+variable "stage_name" {
+  description = "API Gateway stage (dev, stage, prod …)"
+  type        = string
+}

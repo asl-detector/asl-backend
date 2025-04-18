@@ -8,6 +8,8 @@ module "s3" {
 # API Gateway
 module "api_gateway" {
   source = "../api-gateway"
+  project_name = var.project_name
+  stage_name   = var.stage_name
 
   get_download_model_weights_lambda_arn  = module.get_download_model_weights_URL.lambda_invoke_arn
   get_download_model_weights_lambda_name = module.get_download_model_weights_URL.lambda_function_name
