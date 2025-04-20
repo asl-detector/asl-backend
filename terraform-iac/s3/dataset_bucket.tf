@@ -1,24 +1,35 @@
-resource "aws_s3_bucket" "dataset_bucket" {
-  bucket        = "${var.project_name}-dataset-bucket-${var.uuid}"
-  force_destroy = false
+# Use data source to reference the existing captured dataset bucket from data_org account
+data "aws_s3_bucket" "dataset_bucket" {
+  bucket = var.data_captured_dataset_bucket_name
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "dataset_bucket_encryption" {
-  bucket = aws_s3_bucket.dataset_bucket.id
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
+# Create IAM role for Lambda to assume the role in data_org account
+resource "aws_iam_role" "dataset_cross_account_role" {
+  name = "${var.project_name}-dataset-access-role"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
 }
 
-resource "aws_s3_bucket_public_access_block" "dataset_bucket_public_access" {
-  bucket = aws_s3_bucket.dataset_bucket.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-  depends_on = [aws_s3_bucket.dataset_bucket]
+# Allow lambda to assume the role from data_org account
+resource "aws_iam_role_policy" "assume_data_org_dataset_role_policy" {
+  name = "assume-data-org-dataset-role-policy"
+  role = aws_iam_role.dataset_cross_account_role.id
+  
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = "sts:AssumeRole",
+      Resource = var.data_captured_dataset_role_arn
+    }]
+  })
 }

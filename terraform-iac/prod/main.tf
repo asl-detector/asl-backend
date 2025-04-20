@@ -1,8 +1,63 @@
+# Remote state access for AWS organization structure
+data "terraform_remote_state" "org_structure" {
+  backend = "s3"
+  config = {
+    bucket = "terraform-state-asl-foundation"
+    key    = "aws_organization_structure/terraform.tfstate"
+    region = "us-west-2"
+  }
+}
+
+locals {
+  account_ids = data.terraform_remote_state.org_structure.outputs.account_ids
+}
+
+# Remote state access
+data "terraform_remote_state" "artifact_org" {
+  backend = "s3"
+  config = {
+    bucket = "terraform-state-asl-foundation"
+    key    = "artifact_org/terraform.tfstate"
+    region = "us-west-2"
+  }
+}
+
+data "terraform_remote_state" "operations" {
+  backend = "s3"
+  config = {
+    bucket = "terraform-state-asl-foundation"
+    key    = "operations/terraform.tfstate"
+    region = "us-west-2"
+  }
+}
+
+# Add data_org remote state access for captured dataset bucket
+data "terraform_remote_state" "data_org" {
+  backend = "s3"
+  config = {
+    bucket = "terraform-state-asl-foundation"
+    key    = "data_org/terraform.tfstate"
+    region = "us-west-2"
+  }
+}
+
 # s3 bucket
 module "s3" {
   source       = "../s3"
   project_name = var.project_name
   uuid         = var.uuid
+  
+  # Pass the model serving bucket name from artifact_org
+  artifact_model_serving_bucket_name = data.terraform_remote_state.artifact_org.outputs.model_serving_bucket_name
+  artifact_model_serving_role_arn = data.terraform_remote_state.artifact_org.outputs.model_serving_lambda_role_arn
+  
+  # Pass the monitoring data bucket name from operations
+  operations_monitoring_bucket_name = data.terraform_remote_state.operations.outputs.monitoring_bucket
+  operations_monitoring_role_arn = data.terraform_remote_state.operations.outputs.monitoring_data_access_role_arn
+  
+  # Pass the captured dataset bucket name from data_org
+  data_captured_dataset_bucket_name = data.terraform_remote_state.data_org.outputs.captured_data_bucket_name
+  data_captured_dataset_role_arn = data.terraform_remote_state.data_org.outputs.captured_data_access_role_arn
 }
 
 # API Gateway
@@ -39,6 +94,7 @@ module "get_download_model_weights_URL" {
   environment = var.environment # Use environment variable
 
   model_serving_bucket_name = module.s3.model_serving_bucket_name
+  artifact_model_role_arn = data.terraform_remote_state.artifact_org.outputs.model_serving_lambda_role_arn
 }
 
 module "get_upload_model_monitoring_data_URL" {
@@ -46,6 +102,7 @@ module "get_upload_model_monitoring_data_URL" {
   environment = var.environment # Use environment variable
 
   monitoring_data_bucket_name = module.s3.monitoring_data_bucket_name
+  operations_monitoring_role_arn = data.terraform_remote_state.operations.outputs.monitoring_data_access_role_arn
 }
 
 module "get_upload_videos_URL" {
@@ -53,6 +110,7 @@ module "get_upload_videos_URL" {
   environment = var.environment # Use environment variable
 
   dataset_bucket_name = module.s3.dataset_bucket_name
+  data_org_dataset_role_arn = data.terraform_remote_state.data_org.outputs.captured_data_access_role_arn
 }
 
 module "update_stats" {

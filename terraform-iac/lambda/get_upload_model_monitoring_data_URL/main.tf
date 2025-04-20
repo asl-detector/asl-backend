@@ -16,6 +16,21 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# Add policy for assuming cross-account role in operations account
+resource "aws_iam_role_policy" "cross_account_assume_role" {
+  name = "cross-account-assume-role-policy"
+  role = aws_iam_role.lambda_role.id
+  
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = "sts:AssumeRole",
+      Resource = var.operations_monitoring_role_arn
+    }]
+  })
+}
+
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_file = "${path.module}/../../../lambdas/return_POST_URL.py"
@@ -36,7 +51,8 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables = {
-      BUCKET_NAME = var.monitoring_data_bucket_name
+      BUCKET_NAME = var.monitoring_data_bucket_name,
+      CROSS_ACCOUNT_ROLE_ARN = var.operations_monitoring_role_arn
     }
   }
 }

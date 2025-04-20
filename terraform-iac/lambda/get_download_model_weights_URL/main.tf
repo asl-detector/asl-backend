@@ -16,6 +16,21 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# Add policy for assuming cross-account role in artifact account
+resource "aws_iam_role_policy" "cross_account_assume_role" {
+  name = "cross-account-assume-role-policy"
+  role = aws_iam_role.lambda_role.id
+  
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = "sts:AssumeRole",
+      Resource = var.artifact_model_role_arn
+    }]
+  })
+}
+
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_file = "${path.module}/../../../lambdas/return_GET_URL.py"
@@ -37,7 +52,8 @@ resource "aws_lambda_function" "lambda" {
   # This is for the Lambda function to access the S3 bucket
   environment {
     variables = {
-      BUCKET_NAME = var.model_serving_bucket_name
+      BUCKET_NAME = var.model_serving_bucket_name,
+      CROSS_ACCOUNT_ROLE_ARN = var.artifact_model_role_arn
     }
   }
 }
